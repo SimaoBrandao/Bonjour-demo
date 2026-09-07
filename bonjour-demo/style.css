@@ -1,0 +1,115 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+}
+
+.upload-area {
+    border: 2px dashed #999;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    background: #fafafa;
+}
+
+.upload-area.dragover {
+    border-color: #007bff;
+    background: #eef6ff;
+}
+
+.upload-area p {
+    margin: 5px 0;
+}
+
+.buttons {
+    margin-top: 15px;
+}
+
+.scan-button,
+.download-button {
+    padding: 10px 20px;
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.scan-button {
+    background: #007bff;
+    color: white;
+}
+
+.download-button {
+    background: #28a745;
+    color: white;
+    display: none;
+    margin-left: 10px;
+}
+
+.scan-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.attachments {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.attachment {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+}
+
+.pdf-icon {
+    width: 60px;
+    height: 70px;
+    background: #e53935;
+    color: white;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.pdf-icon::after {
+    content: "PDF";
+    font-size: 12px;
+    font-weight: bold;
+    position: absolute;
+    margin-top: 75px;
+    color: #333;
+}
+
+.remove {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 22px;
+    height: 22px;
+    border: 0;
+    border-radius: 50%;
+    background: #dc3545;
+    color: white;
+    cursor: pointer;
+}
+
+.message {
+    margin-top: 15px;
+}
+
+.nome-documento {
+    max-width: 180px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #f5f5f5;
+    text-align: center;
+    word-break: break-word;
+    cursor: pointer;
+}
