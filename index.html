@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport" 
+        content="width=device-width, initial-scale=1.0">
+    <title>Bonjour - Anexos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2>Documentos</h2>    
+    <div
+        id="uploadArea" class="upload-area">
+        <p>
+            Arraste os documentos para aqui
+        </p>
+        <p>
+            ou clique para selecionar
+        </p>
+        <p>
+            Apenas PDF
+        </p>
+        <input type="file" id="fileInput" accept=".pdf,application/pdf" multiple hidden>
+    </div>
+    <!-- Botão para digitalizar -->
+    <div class="buttons">
+        <button type="button" id="scanButton" class="scan-button"> Digitalizar </button>
+    </div>
+    <!-- Mensagem de estado -->
+    <div
+        id="message" class="message">
+    </div>
+ 
+    <!-- Biblioteca bonjour -->
+    <script src="bonjour.js"></script>
+    <script> 
+        const bonjour = new Bonjour({
+                baseUrl:"http://localhost:1975",
+                token:"aRwsSXpzsclFPstfqkqJsOH47ixTNcNb"
+            });
+
+         //ELEMENTOS DA PÁGINA
+        const uploadArea =  document.getElementById("uploadArea");
+        const fileInput = document.getElementById("fileInput");
+        const scanButton = document.getElementById("scanButton");
+        const messageElement = document.getElementById("message");           
+         //DOCUMENTOS
+        let attachments = [];
+        let scannedFile = null;       
+
+        uploadArea.addEventListener("click",
+        function () {
+                fileInput.click();
+            }
+        );       
+
+        fileInput.addEventListener("change", 
+        function () {
+                addFiles(fileInput.files); 
+                fileInput.value = "";
+            }
+        );
+
+        uploadArea.addEventListener("dragover", 
+        function (event) {
+                event.preventDefault();
+                uploadArea.classList.add("dragover");
+            }
+        );
+
+        uploadArea.addEventListener("dragleave", 
+        function () {
+                uploadArea.classList.remove("dragover");
+            }
+        );
+
+        uploadArea.addEventListener("drop", 
+        function (event) {
+                event.preventDefault();
+                uploadArea.classList.remove("dragover");
+                addFiles(event.dataTransfer.files);
+            }
+        );
+       
+        function addFiles(files) {
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];                
+                if (file.type !== "application/pdf") {
+                    message("Apenas ficheiros PDF são permitidos.");
+                    continue;
+                }
+                //Adicionar documento.
+                attachments.push(file);
+            }
+            renderAttachments();
+        }
+
+       
+      //Solicita ao Bonjour uma digitalização.       
+
+        scanButton.addEventListener("click", 
+        async function () {
+                try {
+                    scanButton.disabled = true;
+                    message("A digitalizar...");                   
+                    const resultado = await bonjour.scan();
+                     //Guardar o documento digitalizado. 
+                    scannedFile = resultado.file;                 
+                    //Adicionar aos documentos.
+                    attachments.push(scannedFile);
+                    renderAttachments();
+                    message("Documento digitalizado com sucesso.");
+                }
+                catch (error) {
+                    message("Erro: " + error.message);
+                }
+                finally {
+                    scanButton.disabled = false;
+                }
+            }
+        );
+       
+        function renderAttachments() {
+            uploadArea.innerHTML = "";
+            if (attachments.length === 0) {
+                mostrarAreaVazia();
+                return;
+            }
+
+            attachments.forEach(function (file, index) {
+
+                    const documento = document.createElement("div");
+                    documento.className = "documento-digitalizado";
+                    documento.textContent = file.name;
+                    documento.title = "Abrir " + file.name;
+                    documento.addEventListener("click",
+                        function (event) {
+                            event.stopPropagation();
+                            const url = URL.createObjectURL(file);
+                            window.open(url,"_blank");                          
+                            setTimeout(
+                                function () {
+
+                                    URL.revokeObjectURL(
+                                        url
+                                    );
+
+                                },
+                                60000
+                            );
+
+                        }
+                    );
+                   
+                    const remover = document.createElement("button");
+                    remover.type ="button";
+                    remover.className = "remove";
+                    remover.textContent = "×";
+                    remover.title = "Remover";
+
+                    remover.addEventListener("click",
+                        function (event) {                           
+                            event.stopPropagation();
+                            attachments.splice(index, 1);
+
+                            if (file === scannedFile
+                            ) {
+                                scannedFile = null;
+                            }
+
+                            renderAttachments();
+
+                        }
+                    );
+
+                    documento.appendChild(remover);
+                    uploadArea.appendChild(documento);
+                }
+            );           
+            uploadArea.appendChild(fileInput);
+        }
+        
+        function mostrarAreaVazia() {
+            uploadArea.innerHTML = "";
+            const texto = document.createElement("div");
+            texto.innerHTML = "<p>Arraste os documentos para aqui</p>" + "<p>ou clique para selecionar</p>" + "<p>Apenas PDF</p>";
+            uploadArea.appendChild(texto); 
+            uploadArea.appendChild(fileInput);
+
+        }
+       
+        function message(text) {
+
+            messageElement.textContent = text;
+
+        }
+
+        mostrarAreaVazia();
+    </script>
+</body>
+</html>
